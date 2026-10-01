@@ -1,7 +1,7 @@
 {
   "name": "SIMKARA - Balai BPOM di Yogyakarta",
   "short_name": "SIMKARA",
-  "start_url": "./index.html",
+  "start_url": "./app.html",
   "display": "standalone",
   "background_color": "#f4f7fe",
   "theme_color": "#1e3a8a",
