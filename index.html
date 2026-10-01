@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SIMKARA</title>
+  <!-- Link ke file manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e3a8a">
+  
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #f4f7fe; }
+    iframe { width: 100%; height: 100%; border: none; }
+    
+    /* Tombol install melayang di PWA Wrapper */
+    #installAppBtn {
+      display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #059669; color: white; border: none; padding: 12px 24px;
+      border-radius: 30px; font-family: sans-serif; font-weight: bold; font-size: 14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ini akan memuat aplikasi GAS Anda secara penuh -->
+  <iframe src="LINK_GOOGLE_APPS_SCRIPT_ANDA_DISINI" allow="camera; microphone; geolocation"></iframe>
+
+  <button id="installAppBtn">📲 Install Aplikasi SIMKARA</button>
+
+  <script>
+    // 1. Daftarkan Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('Service Worker Terdaftar!', reg))
+          .catch(err => console.error('Service Worker Gagal!', err));
+      });
+    }
+
+    // 2. Logika Tombol Install PWA
+    let deferredPrompt;
+    const installBtn = document.getElementById('installAppBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault(); // Cegah prompt bawaan
+      deferredPrompt = e; // Simpan event
+      installBtn.style.display = 'block'; // Tampilkan tombol install melayang
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('User menginstal aplikasi');
+        }
+        deferredPrompt = null;
+        installBtn.style.display = 'none'; // Sembunyikan setelah ditekan
+      }
+    });
+
+    // Sembunyikan tombol jika sudah berhasil diinstal
+    window.addEventListener('appinstalled', () => {
+      installBtn.style.display = 'none';
+      console.log('Aplikasi berhasil diinstal');
+    });
+  </script>
+</body>
+</html>
