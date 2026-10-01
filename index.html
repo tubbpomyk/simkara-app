@@ -4,66 +4,67 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SIMKARA</title>
-  <!-- Link ke file manifest -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1e3a8a">
   
   <style>
     body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #f4f7fe; }
     iframe { width: 100%; height: 100%; border: none; }
-    
-    /* Tombol install melayang di PWA Wrapper */
-    #installAppBtn {
-      display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: #059669; color: white; border: none; padding: 12px 24px;
-      border-radius: 30px; font-family: sans-serif; font-weight: bold; font-size: 14px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; z-index: 9999;
-    }
   </style>
 </head>
 <body>
 
-  <!-- Ini akan memuat aplikasi GAS Anda secara penuh -->
-  <iframe src="https://script.google.com/macros/s/AKfycbwfEku2OdGrDv6RwHWx2U6zUSkBQ9hsZvYcEIhoBF0XhsD_ItC6m5N11OdgGBLsfwA6ug/exec" allow="camera; microphone; geolocation"></iframe>
-
-  <button id="installAppBtn">📲 Install Aplikasi SIMKARA</button>
+  <!-- Tambahkan id="simkaraIframe" pada iframe -->
+  <iframe id="simkaraIframe" src="https://script.google.com/macros/s/AKfycbzdbDKqNG_L_gPliKXs7xn-lSc95goENBuMOvXgsw4vpLWCNlqJH_CN_askuV-8sErmSA/exec" allow="camera; microphone; geolocation"></iframe>
 
   <script>
     // 1. Daftarkan Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('Service Worker Terdaftar!', reg))
-          .catch(err => console.error('Service Worker Gagal!', err));
+        navigator.serviceWorker.register('service-worker.js');
       });
     }
 
-    // 2. Logika Tombol Install PWA
     let deferredPrompt;
-    const installBtn = document.getElementById('installAppBtn');
+    const iframe = document.getElementById('simkaraIframe');
 
+    // 2. Tangkap event install dari browser
     window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault(); // Cegah prompt bawaan
-      deferredPrompt = e; // Simpan event
-      installBtn.style.display = 'block'; // Tampilkan tombol install melayang
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Kirim pesan ke dalam iframe (SIMKARA) untuk memunculkan tombol
+      // Kita beri delay sedikit agar iframe selesai dimuat
+      setTimeout(() => {
+        if(iframe.contentWindow) {
+          iframe.contentWindow.postMessage('tampilkanTombolInstall', '*');
+        }
+      }, 3000);
     });
 
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
+    // 3. Dengarkan perintah dari tombol di dalam iframe (SIMKARA)
+    window.addEventListener('message', async (event) => {
+      if (event.data === 'picuInstall' && deferredPrompt) {
+        // Munculkan pop-up bawaan browser
         deferredPrompt.prompt();
+        
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
           console.log('User menginstal aplikasi');
+          // Suruh iframe menyembunyikan tombol karena sudah diinstal
+          if(iframe.contentWindow) {
+            iframe.contentWindow.postMessage('sembunyikanTombolInstall', '*');
+          }
         }
         deferredPrompt = null;
-        installBtn.style.display = 'none'; // Sembunyikan setelah ditekan
       }
     });
 
-    // Sembunyikan tombol jika sudah berhasil diinstal
+    // Jika sudah sukses terinstal, suruh iframe menyembunyikan tombol
     window.addEventListener('appinstalled', () => {
-      installBtn.style.display = 'none';
-      console.log('Aplikasi berhasil diinstal');
+      if(iframe.contentWindow) {
+        iframe.contentWindow.postMessage('sembunyikanTombolInstall', '*');
+      }
     });
   </script>
 </body>
