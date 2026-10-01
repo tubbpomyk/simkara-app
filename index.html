@@ -1,79 +1,26 @@
+<!DOCTYPE html>
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Instal SIMKARA</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SIMKARA</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1e3a8a">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  
-<style>
-    body, html { margin: 0; padding: 0; height: 100%; font-family: 'Poppins', sans-serif; background: #f4f7fe; overflow: hidden; }
-    #installUI { display: flex; justify-content: center; align-items: center; height: 100%; width: 100%; padding: 20px; box-sizing: border-box; }
-    .card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.1); max-width: 400px; width: 100%; text-align: center; }
-    .logo { width: 100px; height: 100px; margin-bottom: 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h1 { font-size: 1.5rem; color: #1e3a8a; margin: 0 0 10px 0; }
-    p { font-size: 0.95rem; color: #64748b; margin-bottom: 25px; line-height: 1.5; }
-    .btn-install { background: #059669; color: white; border: none; padding: 14px 24px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; display: none; align-items: center; justify-content: center; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3); }
-    .btn-install:hover { background: #047857; transform: translateY(-2px); }
-    .status-msg { font-size: 0.85rem; color: #ea580c; font-style: italic; margin-top: 15px; }
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e3a8a">
+  <style>
     body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #f4f7fe; }
     iframe { width: 100%; height: 100%; border: none; display: block; }
-</style>
+  </style>
 </head>
 <body>
-
-  <div id="installUI">
-     <div class="card">
-        <img src="icon-192.png" alt="Logo SIMKARA" class="logo" onerror="this.style.display='none'">
-        <h1>Instal Aplikasi SIMKARA</h1>
-        <p>Halaman ini khusus untuk memasang aplikasi SIMKARA ke layar utama (Homescreen) HP Anda agar lebih mudah diakses.</p>
-        <button id="installBtn" class="btn-install">📲 Instal Sekarang</button>
-        <p id="statusMsg" class="status-msg">Memeriksa dukungan perangkat...</p>
-     </div>
-  </div>
   <iframe id="simkaraApp" src="https://script.google.com/macros/s/AKfycbzdbDKqNG_L_gPliKXs7xn-lSc95goENBuMOvXgsw4vpLWCNlqJH_CN_askuV-8sErmSA/exec" allow="camera; microphone; geolocation"></iframe>
 
-<script>
-    // Daftarkan Service Worker
-if ('serviceWorker' in navigator) {
-window.addEventListener('load', () => {
-navigator.serviceWorker.register('service-worker.js');
-});
-}
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
 
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-    const statusMsg = document.getElementById('statusMsg');
-
-    // Tangkap trigger instalasi dari Chrome
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      statusMsg.style.display = 'none';
-      installBtn.style.display = 'flex';
-    });
-
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-      }
-    });
-
-    window.addEventListener('appinstalled', () => {
-      installBtn.style.display = 'none';
-      statusMsg.style.display = 'block';
-      statusMsg.style.color = '#059669';
-      statusMsg.style.fontStyle = 'normal';
-      statusMsg.style.fontWeight = 'bold';
-      statusMsg.innerHTML = '✅ Aplikasi SIMKARA berhasil diinstal!<br><br>Silakan tutup browser ini dan buka aplikasi SIMKARA dari layar utama HP Anda.';
-    });
-
-    setTimeout(() => {
-        if(!deferredPrompt && installBtn.style.display === 'none') {
-            statusMsg.innerHTML = 'Aplikasi mungkin sudah terinstal, atau perangkat tidak mendukung instalasi otomatis.<br><br><b>Khusus iPhone/iOS:</b> Ketuk tombol <b>Bagikan (Share)</b>, lalu pilih menu <b>"Tambah ke Layar Utama" (Add to Home Screen)</b>.';
     // Dengarkan pertanyaan dari dalam Iframe (Google Apps Script)
     window.addEventListener('message', (event) => {
         if (event.data === 'apakahIniPWA?') {
@@ -91,9 +38,8 @@ navigator.serviceWorker.register('service-worker.js');
                     event.source.postMessage('tampilkanTombolInstall', '*');
                 }
             }
-}
-    }, 3000);
+        }
     });
-</script>
+  </script>
 </body>
 </html>
