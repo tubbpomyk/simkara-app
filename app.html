@@ -12,14 +12,36 @@
   </style>
 </head>
 <body>
-  <iframe src="https://script.google.com/macros/s/AKfycbzdbDKqNG_L_gPliKXs7xn-lSc95goENBuMOvXgsw4vpLWCNlqJH_CN_askuV-8sErmSA/exec" allow="camera; microphone; geolocation"></iframe>
+  <!-- Beri ID pada iframe agar bisa dikontrol oleh script -->
+  <iframe id="simkaraApp" src="https://script.google.com/macros/s/AKfycbzdbDKqNG_L_gPliKXs7xn-lSc95goENBuMOvXgsw4vpLWCNlqJH_CN_askuV-8sErmSA/exec" allow="camera; microphone; geolocation"></iframe>
 
   <script>
+    // Daftarkan Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js');
       });
     }
+
+    // --- SCRIPT TAMBAHAN UNTUK MENYEMBUNYIKAN TOMBOL ---
+    const iframe = document.getElementById('simkaraApp');
+    
+    function sembunyikanTombol() {
+      if (iframe.contentWindow) {
+        // Kirim pesan rahasia ke Google Apps Script untuk menyembunyikan tombol
+        iframe.contentWindow.postMessage('sembunyikanTombolInstall', '*');
+      }
+    }
+
+    // Eksekusi pengiriman pesan setelah iFrame memuat halaman
+    iframe.onload = () => {
+      sembunyikanTombol();
+      
+      // Kita panggil beberapa kali sebagai cadangan (backup) 
+      // untuk memastikan script SIMKARA sudah benar-benar siap menerima pesan
+      setTimeout(sembunyikanTombol, 1500);
+      setTimeout(sembunyikanTombol, 3000);
+    };
   </script>
 </body>
 </html>
