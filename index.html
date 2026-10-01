@@ -21,22 +21,42 @@
       });
     }
 
-    // Dengarkan pertanyaan dari dalam Iframe (Google Apps Script)
+    // Variabel untuk menyimpan pop-up instalasi dari browser
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e; // Simpan event untuk dipicu nanti
+    });
+
     window.addEventListener('message', (event) => {
-        if (event.data === 'apakahIniPWA?') {
+        // 1. Pengecekan apakah dibuka di browser atau PWA
+        if (event.data === 'simkara_ready') {
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches 
+                       || window.matchMedia('(display-mode: fullscreen)').matches 
+                       || window.navigator.standalone;
             
-            // Deteksi apakah sedang dibuka sebagai aplikasi (PWA/Standalone) atau di Browser
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            
-            // PENTING: Gunakan event.source agar pesan langsung tembus lapisan terdalam iframe GAS
             if (event.source) {
-                if (isStandalone) {
-                    // Jika ini PWA, suruh GAS menyembunyikan tombol install-nya
-                    event.source.postMessage('iniPWA', '*');
+                if (isPWA) {
+                    event.source.postMessage('mode_pwa', '*');
                 } else {
-                    // Jika ini Browser biasa, suruh GAS menampilkan tombol install-nya
-                    event.source.postMessage('tampilkanTombolInstall', '*');
+                    event.source.postMessage('mode_browser', '*');
                 }
+            }
+        }
+        
+        // 2. Menerima perintah saat tombol "Install" di sidebar diklik
+        else if (event.data === 'picuInstall') {
+            if (deferredPrompt) {
+                // Munculkan Pop-up bawaan Android/Chrome
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    deferredPrompt = null;
+                });
+            } else {
+                // Jika pop-up otomatis tidak didukung (misal iOS/iPhone)
+                // Arahkan ke halaman panduan instalasi manual
+                window.location.href = './app.html';
             }
         }
     });
