@@ -3,168 +3,140 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SIMKARA - Install Aplikasi</title>
+  <title>Instal SIMKARA</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1e3a8a">
+  <!-- Google Fonts untuk desain yang lebih rapi -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   
   <style>
-    body, html { 
-        margin: 0; padding: 0; height: 100%; overflow: hidden; 
-        background: #f4f7fe; font-family: 'Poppins', sans-serif; 
+    /* Reset & Base */
+    body, html { margin: 0; padding: 0; height: 100%; font-family: 'Poppins', sans-serif; background: #f4f7fe; overflow: hidden; }
+
+    /* --- TAMPILAN HALAMAN INSTALASI --- */
+    #installUI {
+      display: flex; justify-content: center; align-items: center;
+      height: 100%; width: 100%; padding: 20px; box-sizing: border-box;
     }
+    .card {
+      background: white; padding: 40px 30px; border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.1);
+      max-width: 400px; width: 100%; text-align: center;
+    }
+    .logo {
+      width: 100px; height: 100px; margin-bottom: 20px; 
+      border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1 { font-size: 1.5rem; color: #1e3a8a; margin: 0 0 10px 0; }
+    p { font-size: 0.95rem; color: #64748b; margin-bottom: 25px; line-height: 1.5; }
     
-    /* Iframe disembunyikan secara default saat di browser, 
-       dan dimunculkan saat aplikasi sudah terinstal */
-    #simkaraIframe { 
-        width: 100%; height: 100%; border: none; display: none; 
+    .btn-install {
+      background: #059669; color: white; border: none; padding: 14px 24px;
+      border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer;
+      width: 100%; display: none; align-items: center; justify-content: center;
+      transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
     }
+    .btn-install:hover { background: #047857; transform: translateY(-2px); }
+    .status-msg { font-size: 0.85rem; color: #ea580c; font-style: italic; margin-top: 15px; }
 
-    /* --- TAMPILAN HALAMAN INSTALL --- */
-    #install-ui {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-        display: flex; flex-direction: column; justify-content: center; align-items: center;
-        z-index: 1000; color: white; text-align: center; padding: 20px;
-        box-sizing: border-box;
-    }
-
-    .install-card {
-        background: white; color: #1e293b; padding: 40px 30px;
-        border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        max-width: 400px; width: 100%;
-    }
-
-    .icon-app {
-        width: 80px; height: 80px; background: #e0f2fe; color: #2563eb;
-        border-radius: 20px; display: flex; justify-content: center; align-items: center;
-        font-size: 40px; margin: 0 auto 20px auto; font-weight: bold;
-    }
-
-    .install-card h1 { margin: 0 0 10px 0; font-size: 1.5rem; color: #1e3a8a; }
-    .install-card p { margin: 0 0 25px 0; font-size: 0.95rem; color: #64748b; line-height: 1.5; }
-
-    .btn {
-        width: 100%; padding: 14px; border: none; border-radius: 12px;
-        font-size: 1rem; font-weight: 600; font-family: 'Poppins', sans-serif;
-        cursor: pointer; transition: 0.3s; margin-bottom: 12px;
-    }
-
-    .btn-primary { background: #059669; color: white; box-shadow: 0 4px 12px rgba(5,150,105,0.3); }
-    .btn-primary:hover { background: #047857; transform: translateY(-2px); }
-    
-    .btn-secondary { background: #f1f5f9; color: #475569; }
-    .btn-secondary:hover { background: #e2e8f0; }
-
-    #ios-instruction {
-        display: none; background: #fffbeb; color: #b45309; padding: 15px;
-        border-radius: 12px; font-size: 0.85rem; margin-bottom: 20px; text-align: left;
-    }
-
-    /* Jika dibuka sebagai Aplikasi Standalone (Sudah diinstal), 
-       Sembunyikan UI Install, Munculkan Iframe */
-    @media all and (display-mode: standalone) {
-        #install-ui { display: none !important; }
-        #simkaraIframe { display: block !important; }
-    }
+    /* --- TAMPILAN APLIKASI (SIMKARA) --- */
+    #appUI { display: none; width: 100%; height: 100%; }
+    iframe { width: 100%; height: 100%; border: none; }
   </style>
 </head>
 <body>
 
-  <!-- HALAMAN INSTALLATION -->
-  <div id="install-ui">
-    <div class="install-card">
-        <div class="icon-app">S</div>
-        <h1>Aplikasi SIMKARA</h1>
-        <p>Pasang aplikasi SIMKARA BPOM di layar utama HP Anda agar lebih cepat diakses tanpa harus membuka browser.</p>
+  <!-- ============================================== -->
+  <!-- TAMPILAN 1: HALAMAN KHUSUS INSTALASI           -->
+  <!-- ============================================== -->
+  <div id="installUI">
+     <div class="card">
+        <!-- Logo diambil dari icon-192.png yang ada di folder GitHub Anda -->
+        <img src="icon-192.png" alt="Logo SIMKARA" class="logo" onerror="this.style.display='none'">
+        <h1>Instal Aplikasi SIMKARA</h1>
+        <p>Halaman ini khusus untuk memasang aplikasi SIMKARA ke layar utama (Homescreen) HP Anda agar lebih mudah diakses.</p>
         
-        <!-- Pesan khusus pengguna iPhone/Safari -->
-        <div id="ios-instruction">
-            <b>Untuk pengguna iPhone/iPad:</b><br>
-            Ketuk ikon <b>Bagikan (Share)</b> di bawah layar, lalu pilih <b>"Tambah ke Layar Utama" (Add to Home Screen)</b>.
-        </div>
-
-        <button id="mainInstallBtn" class="btn btn-primary" style="display: none;">Install Sekarang</button>
-        <button id="continueWebBtn" class="btn btn-secondary">Buka Versi Web Saja</button>
-    </div>
+        <button id="installBtn" class="btn-install">
+           📲 Instal Sekarang
+        </button>
+        <p id="statusMsg" class="status-msg">Memeriksa dukungan perangkat...</p>
+     </div>
   </div>
 
-  <!-- APLIKASI UTAMA (IFRAME) -->
-  <iframe id="simkaraIframe" src="https://script.google.com/macros/s/AKfycbzdbDKqNG_L_gPliKXs7xn-lSc95goENBuMOvXgsw4vpLWCNlqJH_CN_askuV-8sErmSA/exec" allow="camera; microphone; geolocation"></iframe>
+  <!-- ============================================== -->
+  <!-- TAMPILAN 2: APLIKASI SIMKARA (DISEMBUNYIKAN)   -->
+  <!-- ============================================== -->
+  <div id="appUI">
+     <!-- Link langsung ke Google Apps Script Anda -->
+     <iframe src="https://script.google.com/macros/s/AKfycbzdbDKqNG_L_gPliKXs7xn-lSc95goENBuMOvXgsw4vpLWCNlqJH_CN_askuV-8sErmSA/exec" allow="camera; microphone; geolocation"></iframe>
+  </div>
 
   <script>
-    // 1. Daftarkan Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js');
-      });
-    }
+    // 1. Cek apakah dibuka sebagai Aplikasi (Homescreen) atau di Browser
+    // Jika display-mode standalone aktif, berarti ini dibuka dari HP sebagai aplikasi
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
 
-    const iframe = document.getElementById('simkaraIframe');
-    const installUI = document.getElementById('install-ui');
-    const mainInstallBtn = document.getElementById('mainInstallBtn');
-    const iosInstruction = document.getElementById('ios-instruction');
-    let deferredPrompt;
+    const installUI = document.getElementById('installUI');
+    const appUI = document.getElementById('appUI');
 
-    // Deteksi apakah perangkat menggunakan iOS (Safari tidak mendukung tombol install otomatis)
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS) {
-        iosInstruction.style.display = 'block';
-    }
-
-    // 2. Tangkap event install dari browser (Hanya Android/Chrome)
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      
-      // Munculkan tombol install utama di Landing Page
-      mainInstallBtn.style.display = 'block';
-      
-      // Beri tahu iframe di latar belakang bahwa aplikasi siap diinstal
-      setTimeout(() => {
-        if(iframe.contentWindow) iframe.contentWindow.postMessage('tampilkanTombolInstall', '*');
-      }, 3000);
-    });
-
-    // 3. Aksi saat tombol "Install Sekarang" di Landing Page diklik
-    mainInstallBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          console.log('User menginstal aplikasi dari Landing Page');
-          tutupLandingPage();
-        }
-        deferredPrompt = null;
-      }
-    });
-
-    // 4. Aksi saat tombol "Buka Versi Web Saja" diklik
-    document.getElementById('continueWebBtn').addEventListener('click', tutupLandingPage);
-
-    // 5. Dengarkan perintah install dari tombol yang ada di dalam iframe (jika iframe aktif)
-    window.addEventListener('message', async (event) => {
-      if (event.data === 'picuInstall' && deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') tutupLandingPage();
-        deferredPrompt = null;
-      }
-    });
-
-    // 6. Sembunyikan UI Install jika terdeteksi sukses diinstal
-    window.addEventListener('appinstalled', tutupLandingPage);
-
-    // Fungsi untuk menyembunyikan Landing Page dan menampilkan aplikasi (iframe)
-    function tutupLandingPage() {
+    if (isStandalone) {
+        // JIKA DIBUKA DARI APLIKASI HOMESCREEN: 
+        // Sembunyikan halaman instalasi, tampilkan iFrame SIMKARA
         installUI.style.display = 'none';
-        iframe.style.display = 'block';
-        if(iframe.contentWindow) iframe.contentWindow.postMessage('sembunyikanTombolInstall', '*');
-    }
+        appUI.style.display = 'block';
+    } 
+    else {
+        // JIKA DIBUKA DARI BROWSER (CHROME/SAFARI): 
+        // Tampilkan halaman Instalasi.
+        
+        // Daftarkan Service Worker
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js');
+          });
+        }
 
-    // Perlindungan tambahan: Jika dibuka sudah dalam mode aplikasi (homescreen), pastikan iframe tampil
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        tutupLandingPage();
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        const statusMsg = document.getElementById('statusMsg');
+
+        // Tangkap trigger instalasi dari Chrome
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          // Hilangkan pesan loading, munculkan tombol hijau
+          statusMsg.style.display = 'none';
+          installBtn.style.display = 'flex';
+        });
+
+        // Aksi saat tombol ditekan
+        installBtn.addEventListener('click', async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt(); // Munculkan pop-up bawaan HP
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+              console.log('User setuju menginstal');
+            }
+            deferredPrompt = null;
+          }
+        });
+
+        // Jika instalasi berhasil
+        window.addEventListener('appinstalled', () => {
+          installBtn.style.display = 'none';
+          statusMsg.style.display = 'block';
+          statusMsg.style.color = '#059669';
+          statusMsg.style.fontStyle = 'normal';
+          statusMsg.style.fontWeight = 'bold';
+          statusMsg.innerHTML = '✅ Aplikasi SIMKARA berhasil diinstal!<br><br>Silakan tutup halaman ini dan buka aplikasi SIMKARA dari layar utama (Homescreen) HP Anda.';
+        });
+
+        // Pengecekan setelah 3 detik (Bagi iOS / iPhone atau jika sudah diinstal)
+        setTimeout(() => {
+            if(!deferredPrompt && installBtn.style.display === 'none') {
+                statusMsg.innerHTML = 'Aplikasi mungkin sudah terinstal, atau perangkat tidak mendukung instalasi otomatis.<br><br><b>Khusus iPhone/iOS:</b> Ketuk tombol <b>Bagikan (Share)</b> di bawah, lalu pilih menu <b>"Tambah ke Layar Utama" (Add to Home Screen)</b>.';
+            }
+        }, 3000);
     }
   </script>
 </body>
