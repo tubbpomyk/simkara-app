@@ -46,44 +46,65 @@
     // Daftarkan Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js');
+        navigator.serviceWorker.register('service-worker.js').catch(err => console.log('SW Error:', err));
       });
     }
 
     let deferredPrompt;
+    let isPromptFired = false; // Flag bantuan untuk mendeteksi event browser
     const installBtn = document.getElementById('installBtn');
     const statusMsg = document.getElementById('statusMsg');
 
-    // Tangkap trigger instalasi dari Chrome
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      statusMsg.style.display = 'none';
-      installBtn.style.display = 'flex';
-    });
+    // Cek apakah halaman ini sudah dibuka dalam mode Aplikasi (PWA terinstal)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-      }
-    });
+    if (isStandalone) {
+        // Jika sudah berbentuk aplikasi
+        statusMsg.style.color = '#059669';
+        statusMsg.style.fontStyle = 'normal';
+        statusMsg.style.fontWeight = 'bold';
+        statusMsg.innerHTML = '✅ Aplikasi SIMKARA sudah terinstal dan sedang digunakan.';
+    } else {
+        // Tangkap trigger instalasi dari Chrome / Android
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          isPromptFired = true; // Tandai bahwa trigger berhasil
+          
+          statusMsg.style.display = 'none';
+          installBtn.style.display = 'flex';
+        });
 
-    window.addEventListener('appinstalled', () => {
-      installBtn.style.display = 'none';
-      statusMsg.style.display = 'block';
-      statusMsg.style.color = '#059669';
-      statusMsg.style.fontStyle = 'normal';
-      statusMsg.style.fontWeight = 'bold';
-      statusMsg.innerHTML = '✅ Aplikasi SIMKARA berhasil diinstal!<br><br>Silakan tutup browser ini dan buka aplikasi SIMKARA dari layar utama HP Anda.';
-    });
+        // Aksi ketika tombol instal diklik
+        installBtn.addEventListener('click', async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+          }
+        });
 
-    setTimeout(() => {
-        if(!deferredPrompt && installBtn.style.display === 'none') {
-            statusMsg.innerHTML = 'Aplikasi mungkin sudah terinstal, atau perangkat tidak mendukung instalasi otomatis.<br><br><b>Khusus iPhone/iOS:</b> Ketuk tombol <b>Bagikan (Share)</b>, lalu pilih menu <b>"Tambah ke Layar Utama" (Add to Home Screen)</b>.';
-        }
-    }, 3000);
+        // Aksi ketika aplikasi berhasil diinstal oleh user
+        window.addEventListener('appinstalled', () => {
+          installBtn.style.display = 'none';
+          statusMsg.style.display = 'block';
+          statusMsg.style.color = '#059669';
+          statusMsg.style.fontStyle = 'normal';
+          statusMsg.style.fontWeight = 'bold';
+          statusMsg.innerHTML = '✅ Aplikasi SIMKARA berhasil diinstal!<br><br>Silakan tutup browser ini dan buka aplikasi SIMKARA dari layar utama HP Anda.';
+        });
+
+        // Fallback Timer 3 Detik (Untuk iOS, Safari, atau Browser yang tidak support PWA otomatis)
+        setTimeout(() => {
+            // Jika browser tidak men-trigger event instalasi
+            if(!isPromptFired) {
+                statusMsg.style.display = 'block';
+                statusMsg.style.color = '#475569';
+                statusMsg.style.fontStyle = 'normal';
+                statusMsg.innerHTML = 'Aplikasi mungkin sudah terinstal, atau browser tidak mendukung instalasi otomatis.<br><br><b>Khusus iPhone/iOS (Safari):</b><br>Ketuk icon <b>Bagikan (Share)</b> di bagian bawah browser, lalu gulir ke bawah dan pilih menu <b>"Tambah ke Layar Utama" (Add to Home Screen)</b>.';
+            }
+        }, 3000);
+    }
   </script>
 </body>
 </html>
