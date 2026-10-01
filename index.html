@@ -21,21 +21,22 @@
       });
     }
 
-    // Dengarkan pertanyaan dari dalam Iframe (Google Apps Script)
+    // Dengarkan saat Iframe GAS memberi tahu bahwa dia sudah siap
     window.addEventListener('message', (event) => {
-        if (event.data === 'apakahIniPWA?') {
+        if (event.data === 'simkara_ready') {
             
-            // Deteksi apakah sedang dibuka sebagai aplikasi (PWA/Standalone) atau di Browser
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            // Cek PWA dengan parameter yang lebih luas (Android & iOS)
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches 
+                       || window.matchMedia('(display-mode: fullscreen)').matches 
+                       || window.matchMedia('(display-mode: minimal-ui)').matches 
+                       || window.navigator.standalone;
             
-            // PENTING: Gunakan event.source agar pesan langsung tembus lapisan terdalam iframe GAS
+            // Balas tepat ke sumber iframe terdalam
             if (event.source) {
-                if (isStandalone) {
-                    // Jika ini PWA, suruh GAS menyembunyikan tombol install-nya
-                    event.source.postMessage('iniPWA', '*');
+                if (isPWA) {
+                    event.source.postMessage('mode_pwa', '*'); // PWA = Tetap Sembunyi
                 } else {
-                    // Jika ini Browser biasa, suruh GAS menampilkan tombol install-nya
-                    event.source.postMessage('tampilkanTombolInstall', '*');
+                    event.source.postMessage('mode_browser', '*'); // BROWSER = Munculkan Tombol
                 }
             }
         }
