@@ -1,4 +1,4 @@
-const CACHE_NAME = 'simkara-pwa-v11';
+const CACHE_NAME = 'simkara-pwa-v12';
 const urlsToCache = [
   './',
   './index.html',
